@@ -148,7 +148,7 @@ ORDER BY receita_total DESC
 
 --- Mostra o volume total de vendas agrupado por trimestre e semestre, permitindo análise de sazonalidade.
 
-SELECT 
+SELECT
     cal.trimestre,
     cal.semestre,
     SUM(v.valor_total) AS receita_total

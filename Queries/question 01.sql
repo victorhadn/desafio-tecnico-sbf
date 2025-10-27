@@ -19,7 +19,7 @@ WITH VendasAgregadas AS (
         FPI.flg_cancelado = 'N' 
     GROUP BY
         1, 2, 3, 4
-),
+), 
 RankeamentoProdutos AS (
     SELECT
         sgl_uf_entrega,

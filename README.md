@@ -13,6 +13,7 @@
 Obs: Questão 01 e 02 na pasta de queries
 
 - Questão 03:
+  
 1 - Transformar a DIM_META em uma FATO_META tendo em vista que metas podem ser alteradas a cada mês e ano.
 
 2 - Já tem uma DIM_CALENDARIO com os dados imputados do csv, eu já chamei ela de DIM_CALENDARIO, mas deve existir uma DIM_CALENDARIO_COMPLETO com dados dos 365 dias do ano (366 se for ano bissexto).
@@ -40,7 +41,7 @@ Por exemplo: JOÃO tem um endereço av. pará, 342, Belém-PA. João Trocou o en
 mais recente do cliente), tendo uma tabela fato, uma linha existiria para o primeiro endereço e outra linha para o segundo endereço (mantendo o historico de alterações) e para ver o dado mais
 recente do cliente pegaria a MAX(dt_ultima_atualizacao) agrupado por id_cliente.
 
-2-  Utilizaria um RBAC (controle de acesso restrito) para armazenar esses dados sensíveis de cada cliente, apenas algumas equipes teriam permissão.
+2 - Utilizaria um RBAC (controle de acesso restrito) para armazenar esses dados sensíveis de cada cliente, apenas algumas equipes teriam permissão.
 
 - Questão 05:
 

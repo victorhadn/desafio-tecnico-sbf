@@ -8,9 +8,15 @@
 - Consumo - DB Browser (queries de consulta das tabelas do SQLite)
 
 
-## Respostas em texto das questões
+## Respostas e ideias das questões 1 a 5
 
-Obs: Questão 01 e 02 na pasta de queries
+- Questão 01:
+
+<img width="562" height="659" alt="image" src="https://github.com/user-attachments/assets/98286383-42ab-4e9c-8253-cfced7b2d330" />
+
+- Questão 02:
+
+<img width="507" height="196" alt="image" src="https://github.com/user-attachments/assets/686f2d60-80e3-4580-9e5a-b0ddbb92f2c2" />
 
 - Questão 03:
   

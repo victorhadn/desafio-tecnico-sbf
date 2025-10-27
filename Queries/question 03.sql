@@ -410,19 +410,3 @@ INSERT INTO FATO_ESTOQUE (id_estoque, id_data, id_produto, id_categoria, nome_pr
 (18, 20240301, 108, 12, 'Wilson Raquetes de Tênis', 'Raquetes de Tênis', 'Wilson', 35, 20, 120, 'normal', 'Único', NULL),
 (19, 20240301, 109, 17, 'Integral Medica BCAA', 'BCAA', 'Integral Medica', 280, 100, 450, 'normal', 'Único', NULL),
 (20, 20240301, 110, 22, 'Adidas Caneleiras', 'Caneleiras', 'Adidas', 42, 20, 120, 'normal', 'Único', 'Preto');
-
-SELECT * FROM DIM_CALENDARIO_COMPLETA
-
-SELECT * FROM DIM_CATEGORIA
-
-SELECT * FROM DIM_CLIENTE
-
-SELECT * FROM DIM_ESTADO
-
-SELECT * FROM DIM_TRANSPORTADORA
-
-SELECT * FROM FATO_META
-
-SELECT * FROM FATO_VENDAS
-
-SELECT * FROM FATO_ESTOQUE

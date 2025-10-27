@@ -2,17 +2,45 @@
 
 --- Valor total das vendas realizadas em um determinado período, considerando descontos e frete. 
 
-SELECT 
-    SUM(valor_total) AS receita_total
-FROM FATO_VENDAS;
+WITH vendas_periodo AS (
+    SELECT
+        cc.nome_mes,
+        cc.ano,
+        cc.mes,
+        SUM(v.valor_total) AS receita_total
+    FROM FATO_VENDAS AS v
+    INNER JOIN DIM_CALENDARIO_COMPLETA AS cc
+        ON cc.id_data = v.id_data
+    WHERE cc.data_completa BETWEEN '2024-01-01' AND '2024-10-31'
+    GROUP BY cc.nome_mes, cc.ano, cc.mes
+)
+SELECT
+    nome_mes,
+    ano,
+    ROUND(COALESCE(receita_total, 0.00), 2) AS receita_total
+FROM vendas_periodo
+ORDER BY receita_total DESC
+
+SELECT * FROM DIM_CALENDARIO_COMPLETA
 
 --- 2. TICKET MÉDIO (R$)
 
 --- Valor médio gasto por cliente por transação. Representa o quanto, em média, cada venda contribui para a receita total.
 
-SELECT 
-    SUM(valor_total) / COUNT(DISTINCT id_venda) AS ticket_medio
-FROM FATO_VENDAS;
+WITH vendas_cliente AS (
+    SELECT
+        id_cliente,
+        id_venda,
+        SUM(valor_total) AS valor_total_venda
+    FROM FATO_VENDAS
+    GROUP BY id_cliente, id_venda
+)
+SELECT
+    id_cliente,
+    ROUND(AVG(valor_total_venda), 2) AS ticket_medio
+FROM vendas_cliente
+GROUP BY id_cliente
+ORDER BY ticket_medio DESC
 
 
 --- 3. VENDAS VS META (%)
@@ -21,14 +49,18 @@ FROM FATO_VENDAS;
 
 SELECT 
     c.nome_mes,
-    (SUM(v.valor_total) / SUM(m.valor_meta)) * 100 AS percentual_meta
-FROM FATO_VENDAS v
-JOIN FATO_META m ON v.id_categoria = m.id_categoria 
-JOIN DIM_CALENDARIO_COMPLETA c ON v.id_data = c.id_data
-GROUP BY c.nome_mes
-ORDER BY c.nome_mes DESC;
-
-SELECT * FROM FATO_VENDAS
+    c.ano,
+    ROUND(
+        (SUM(v.valor_total) / NULLIF(SUM(m.valor_meta), 0)) * 100,
+        2
+    ) AS percentual_meta
+FROM FATO_VENDAS AS v
+INNER JOIN FATO_META AS m 
+    ON v.id_categoria = m.id_categoria
+INNER JOIN DIM_CALENDARIO_COMPLETA AS c 
+    ON v.id_data = c.id_data
+GROUP BY c.nome_mes, c.ano
+ORDER BY percentual_meta DESC
 
 
 --- TOP 5 CATEGORIAS POR RECEITA
@@ -37,13 +69,13 @@ SELECT * FROM FATO_VENDAS
 
 SELECT 
     c.categoria,
-    SUM(v.valor_total) AS receita_total
-FROM FATO_VENDAS v
-JOIN DIM_CATEGORIA c ON v.id_categoria = c.id_categoria
+    ROUND(SUM(v.valor_total), 2) AS receita_total
+FROM FATO_VENDAS AS v
+INNER JOIN DIM_CATEGORIA AS c 
+    ON v.id_categoria = c.id_categoria
 GROUP BY c.categoria
 ORDER BY receita_total DESC
 LIMIT 5;
-
 
 --- 5. TOP 5 MARCAS POR RECEITA
 
@@ -51,9 +83,10 @@ LIMIT 5;
 
 SELECT 
     c.marca,
-    SUM(v.valor_total) AS receita_total
-FROM FATO_VENDAS v
-JOIN DIM_CATEGORIA c ON v.id_categoria = c.id_categoria
+    ROUND(SUM(v.valor_total), 2) AS receita_total
+FROM FATO_VENDAS AS v
+INNER JOIN DIM_CATEGORIA AS c 
+    ON v.id_categoria = c.id_categoria
 GROUP BY c.marca
 ORDER BY receita_total DESC
 LIMIT 5;
@@ -65,20 +98,24 @@ LIMIT 5;
 
 SELECT 
     cli.regiao_uf,
-    SUM(v.valor_total) AS receita_total
-FROM FATO_VENDAS v
-JOIN DIM_CLIENTE cli ON v.id_cliente = cli.id_cliente
+    ROUND(SUM(v.valor_total), 2) AS receita_total
+FROM FATO_VENDAS AS v
+INNER JOIN DIM_CLIENTE AS cli 
+    ON v.id_cliente = cli.id_cliente
 GROUP BY cli.regiao_uf
 ORDER BY receita_total DESC;
 
 
 --- 7. RECEITA MÉDIA POR CLIENTE
 
---- Média de receita gerada por cliente ativo no período analisado.
+--- Média de receita gerada por cliente no período analisado.
 
 SELECT 
-    SUM(valor_total) / COUNT(DISTINCT id_cliente) AS receita_media_cliente
-FROM FATO_VENDAS;
+    v.id_cliente,
+    ROUND(SUM(v.valor_total) / NULLIF(COUNT(DISTINCT v.id_venda), 0), 2) AS receita_media_cliente
+FROM FATO_VENDAS AS v
+GROUP BY v.id_cliente
+ORDER BY receita_media_cliente DESC;
 
 
 --- 8. CUSTO MÉDIO DE FRETE (R$)
@@ -86,9 +123,13 @@ FROM FATO_VENDAS;
 --- Valor médio gasto com frete por pedido realizado.
 
 SELECT 
-    AVG(valor_frete) AS custo_medio_frete
+    id_venda,
+	AVG(valor_frete) AS custo_medio_frete
 FROM FATO_VENDAS
-WHERE valor_frete > 0;
+GROUP BY id_venda
+ORDER BY valor_frete DESC
+
+select * from FATO_VENDAS
 
 --- 9. VENDAS POR TRANSPORTADORA
 
@@ -100,7 +141,7 @@ SELECT
 FROM FATO_VENDAS v
 JOIN DIM_TRANSPORTADORA t ON v.id_transportadora = t.id_transportadora
 GROUP BY t.nome_transportadora
-ORDER BY receita_total DESC;
+ORDER BY receita_total DESC
 
 
 --- 10. VENDAS POR TRIMESTRE / SEMESTRE
@@ -114,4 +155,6 @@ SELECT
 FROM FATO_VENDAS v
 JOIN DIM_CALENDARIO_COMPLETA cal ON v.id_data = cal.id_data
 GROUP BY cal.trimestre, cal.semestre
-ORDER BY cal.trimestre;
+ORDER BY cal.trimestre
+
+SELECT * FROM FATO_VENDAS

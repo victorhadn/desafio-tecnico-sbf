@@ -1,0 +1,104 @@
+Table DIM_CALENDARIO_COMPLETA {
+  id_data int [pk]
+  data_completa date [not null]
+  dia int [not null]
+  mes int [not null]
+  ano int [not null]
+  nome_mes varchar(20) [not null]
+  nome_mes_abreviado varchar(3) [not null]
+  dia_semana varchar(20) [not null]
+  dia_semana_abreviado varchar(3) [not null]
+  fim_de_semana boolean [not null]
+  trimestre int [not null]
+  semestre int [not null]
+  feriado boolean [default: false]
+  nome_feriado varchar(50)
+  ano_bissexto boolean [not null]
+}
+
+Table DIM_MARCA {
+  id integer [pk]
+  nome text
+}
+
+Table DIM_PRODUTO {
+  id integer [pk]
+  id_marca integer
+  nome text
+  categoria text
+}
+
+Table DIM_ESTADO {
+  id_estado serial [pk]
+  uf varchar(2) [not null, unique]
+  estado varchar(50) [not null]
+  capital varchar(50) [not null]
+  regiao_uf varchar(20) [not null]
+}
+
+Table DIM_CLIENTE {
+  id_cliente serial [pk]
+  id_estado int [not null]
+  uf_cliente varchar(2) [not null]
+  regiao_uf varchar(20) [not null]
+  dt_ultima_compra date
+}
+
+Table DIM_TRANSPORTADORA {
+  id_transportadora serial [pk]
+  nome_transportadora varchar(100) [not null]
+  cnpj varchar(14) [not null, unique]
+}
+
+Table DIM_CATEGORIA {
+  id_categoria serial [pk]
+  categoria varchar(50) [not null]
+  super_categoria varchar(50) [not null]
+  id_marca int [not null]
+  marca varchar(50) [not null]
+}
+
+Table FATO_META {
+  id_meta serial [pk]
+  id_data int [not null, ref: > DIM_CALENDARIO_COMPLETA.id_data]
+  id_categoria int [ref: > DIM_CATEGORIA.id_categoria]
+  valor_meta decimal(15,2) [not null]
+  tipo_meta varchar(50) [not null]
+  dt_criacao_meta timestamp [default: `CURRENT_TIMESTAMP`]
+  dt_atualizacao_meta timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table FATO_VENDAS {
+  id_venda serial [pk]
+  id_data int [not null, ref: > DIM_CALENDARIO_COMPLETA.id_data]
+  id_cliente int [not null, ref: > DIM_CLIENTE.id_cliente]
+  id_produto int [not null]
+  id_transportadora int [ref: > DIM_TRANSPORTADORA.id_transportadora]
+  id_categoria int [not null, ref: > DIM_CATEGORIA.id_categoria]
+  quantidade int [not null]
+  valor_unitario decimal(10,2) [not null]
+  desconto decimal(10,2) [default: 0]
+  valor_com_desconto decimal(10,2) [not null]
+  valor_frete decimal(10,2) [default: 0]
+  valor_total decimal(15,2) [not null]
+}
+
+Table FATO_ESTOQUE {
+  id_estoque serial [pk]
+  id_data int [not null, ref: > DIM_CALENDARIO_COMPLETA.id_data]
+  id_produto int [not null]
+  id_categoria int [not null, ref: > DIM_CATEGORIA.id_categoria]
+  nome_produto varchar(100) [not null]
+  categoria varchar(50) [not null]
+  marca varchar(50) [not null]
+  qtd_estoque int [not null]
+  qtd_minima int [not null]
+  qtd_maxima int [not null]
+  tamanho varchar(10)
+  cor varchar(30)
+  situacao_estoque varchar(20) [not null]
+}
+
+Ref: DIM_CLIENTE.id_estado > DIM_ESTADO.id_estado
+Ref: DIM_PRODUTO.id_marca > DIM_MARCA.id
+Ref: DIM_CATEGORIA.id_marca > DIM_MARCA.id
